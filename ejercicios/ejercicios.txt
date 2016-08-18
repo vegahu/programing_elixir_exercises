@@ -1,0 +1,182 @@
+Exercise: PatternMatching-1
+-----------------------------
+15 Jul 2013, 03:42
+Dave Thomas (374 posts)
+Which of the following would match?
+a = [1, 2, 3]
+a = 4
+4 = a
+[a, b] = [ 1, 2, 3 ]
+a = [ [ 1, 2, 3 ] ]
+[ a..5 ] = [ 1..5 ]
+[a] = [ [ 1, 2, 3 ] ]
+[[a]] = [ [ 1, 2, 3 ] ]
+
+
+iex(1)> a = [1,2,3]
+[1, 2, 3]
+iex(2)> a = 4
+4
+iex(3)> 4 = a
+4
+iex(4)> [a, b]=[1,2,3]
+** (MatchError) no match of right hand side value: [1, 2, 3]
+
+iex(4)> a=[[1,2,3]]
+[[1, 2, 3]]
+iex(5)> [a]=[[1,2,3]]
+[[1, 2, 3]]
+iex(6)> [[a]]=[[1,2,3]]
+** (MatchError) no match of right hand side value: [[1, 2, 3]]
+
+
+A Possible Solution</summary>
+
+a = [1, 2, 3]         #=> a → [1, 2, 3]
+a = 4                 #=> a → 4
+4 = a                 # assuming prior assignment
+
+[a, b] = [ 1, 2, 3 ]
+# ** (MatchError) no match of right hand side value: [1, 2, 3]
+#    :erl_eval.expr/3
+
+a = [ [ 1, 2, 3 ] ]   #=> a → [[1, 2, 3]]
+[ a..5 ] = [ 1..5 ]   #=> a → 1
+[a] = [ [ 1, 2, 3 ] ] #=> a → [1,2,3]
+
+[[a]] = [ [ 1, 2, 3 ] ]
+# ** (MatchError) no match of right hand side value: [[1, 2, 3]]
+#     :erl_eval.expr/3
+
+
+
+06 Apr 2016, 14:12
+Julien Thomas Negrotto (1 post)
+A pattern (the left side) is matched if the values (the right side) have the same structure and if each term in the pattern can be matched to the corresponding term in the values.
+
+For [a] = [[1, 2, 3]], the left side is a list containing a single value. Since that value is a variable, it will be assigned to any value that will make the match succeed. So this match will succeed as long as list on the right also contains a single value. It does contain a single value (another list), so the variable a is assigned to [1, 2, 3], and the match succeeds.
+
+For [[a]] = [[1, 2, 3]], the left side is a list, which contains a single nested list, which contains a single value. The right side is a list, which contains a single nested list, which contains three values. The structure of the pattern (on the left) doesn’t match that of the values (on the right), so the match fails.
+
+
+Exercise: PatternMatching-2
+-----------------------------
+iex(6)> [a, b, c] = [1, 2, 3]
+[1, 2, 3]
+iex(7)> [a, b, a] = [1, 1, 2]
+** (MatchError) no match of right hand side value: [1, 1, 2]
+
+iex(7)> [a, b, a] = [1, 2, 1]
+[1, 2, 1]
+
+
+Exercise: PatternMatching-3
+-----------------------------
+iex(12)> a = 2
+2
+iex(13)> [a, b, a] = [1, 2, 3]
+** (MatchError) no match of right hand side value: [1, 2, 3]
+
+iex(13)> [a, b, a] = [1, 1, 2]
+** (MatchError) no match of right hand side value: [1, 1, 2]
+
+iex(13)> a = 1
+1
+
+iex(15)> ^a = 2
+** (MatchError) no match of right hand side value: 2
+
+iex(15)> ^a = 1
+1
+iex(16)> ^a = 2 - a
+1
+
+
+Exercise: Functions-1
+-----------------------------
+“Go into iex. Create and run the functions that do the following:
+
+list_concat.([:a, :b], [:c, :d]) #=> [:a, :b, :c, :d]
+
+sum.(1, 2, 3) #=> 6
+
+pair_tuple_to_list.( { 1234, 5678 } ) #=> [ 1234, 5678 ]”
+
+
+
+iex(17)> list_concat = fn a, b -> a ++ b end
+#Function<12.52032458/2 in :erl_eval.expr/5>
+
+iex(18)> list_concat.([:a, :b], [:c, :d])
+[:a, :b, :c, :d]
+
+iex(19)> sum = fn a, b, c -> a + b + c end
+#Function<18.52032458/3 in :erl_eval.expr/5>
+
+iex(20)> sum.(1,2,3)
+6
+
+iex(21)> pair_tuple_to_list = fn {a, b} -> [a, b] end
+#Function<6.52032458/1 in :erl_eval.expr/5>
+
+iex(22)> pair_tuple_to_list.({1234, 5678})
+[1234, 5678]
+
+
+Exercise: Functions-2
+-----------------------------
+“Write a function that takes three arguments. If the first two are zero, return “FizzBuzz.” If the first is zero, return “Fizz.” If the second is zero, return “Buzz.” Otherwise return the third argument. Do not use any language features that we haven’t yet covered in this book.”
+
+fizzbuzz = fn
+              0, 0, _ -> "FizzBuzz"
+              0, _, _ -> "Fizz"
+              _, 0, _ -> "Buzz."
+              _, _, c -> c
+            end
+IO.puts fizzbuzz.(0, 0, 3)
+IO.puts fizzbuzz.(0, "s", 3)
+IO.puts fizzbuzz.("rr", 0, 3)
+IO.puts fizzbuzz.(30, 6, "alaaa")
+
+
+
+Exercise: Functions-3
+-----------------------------
+“The operator rem(a, b) returns the remainder after dividing a by b. Write a function that takes a single integer (n) and calls the function in the previous exercise, passing it rem(n,3), rem(n,5), and n. Call it seven times with the arguments 10, 11, 12, and so on. You should get “Buzz, 11, Fizz, 13, 14, FizzBuzz, 16.”
+
+(Yes, it’s a FizzBuzz solution with no conditional logic.)”
+
+frem = fn n -> fizzbuzz.(rem(n, 3), rem(n, 5), n) end
+IO.puts frem.(10)
+IO.puts frem.(11)
+IO.puts frem.(12)
+IO.puts frem.(13)
+IO.puts frem.(14)
+IO.puts frem.(15)
+IO.puts frem.(16)
+
+
+Exercise: Functions-4
+-----------------------------
+“Write a function prefix that takes a string. It should return a new function that takes a second string. When that second function is called, it will return a string containing the first string, a space, and the second string.
+
+iex(44)> prefix = fn str1 -> (fn str2 -> str1 <> " " <> str2 end) end
+#Function<6.52032458/1 in :erl_eval.expr/5>
+iex(45)> mrs = prefix.("Mrs")
+#Function<6.52032458/1 in :erl_eval.expr/5>
+iex(46)> mrs.("Smith")
+"Mrs Smith"​
+
+
+Exercise: Functions-5
+-----------------------------
+“Use the &… notation to rewrite the following.
+
+Enum.map [1,2,3,4], fn x -> x + 2 end
+
+Enum.each [1,2,3,4], fn x -> IO.inspect x end”
+
+
+Enum.map [1,2,3,4], &(&1 + 2)
+
+Enum.each [1,2,3,4], &(IO.inspect &1)
